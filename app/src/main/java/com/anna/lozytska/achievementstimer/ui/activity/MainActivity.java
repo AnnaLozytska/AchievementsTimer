@@ -1,6 +1,7 @@
 package com.anna.lozytska.achievementstimer.ui.activity;
 
 import android.content.SharedPreferences;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.anna.lozytska.achievementstimer.R;
+import com.anna.lozytska.achievementstimer.ui.graphics.MyGLSurfaceView;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int TIMER_UPDATE_MESSAGE = 0;
     private static final long TIMER_UPDATE_INTERVAL_MS = DateUtils.SECOND_IN_MILLIS;
 
+    private GLSurfaceView mGLView;
     private TextView mTimerView;
     private Button mStartView;
     private Button mResetView;
@@ -34,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mGLView = (MyGLSurfaceView) findViewById(R.id.glview);
 
         mTimerView = (TextView) findViewById(R.id.timer);
         mStartView = (Button) findViewById(R.id.start);
@@ -126,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         timeRemaining -= minutes * DateUtils.MINUTE_IN_MILLIS;
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeRemaining);
 
-        if (hours <0 || minutes < 0) {
+        if (hours < 0 || minutes < 0) {
             seconds = Math.abs(seconds);
         }
         if (hours < 0) {
