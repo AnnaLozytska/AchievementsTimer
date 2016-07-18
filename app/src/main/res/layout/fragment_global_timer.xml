@@ -17,11 +17,11 @@
         android:layout_toRightOf="@+id/start"
         android:text="@string/reset" />
 
-    <TextView
+    <com.anna.lozytska.achievementstimer.ui.widget.TimerView
         android:id="@+id/timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textAlignment="center" />
+        android:textAlignment="center"/>
 
 </RelativeLayout>

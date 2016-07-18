@@ -12,18 +12,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.anna.lozytska.achievementstimer.R;
-
-import java.util.concurrent.TimeUnit;
+import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 
 public class GlobalTimerFragment extends Fragment {
     private static final String TIME_BALANCE_DEADLINE = "time_balance_deadline";
     private static final int TIMER_UPDATE_MESSAGE = 0;
     private static final long TIMER_UPDATE_INTERVAL_MS = DateUtils.SECOND_IN_MILLIS;
 
-    private TextView mTimerView;
+    private TimerView mTimerView;
     private Button mStartView;
     private Button mResetView;
 
@@ -35,13 +33,13 @@ public class GlobalTimerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_global_timer, container, false);
-        mTimerView = (TextView) root.findViewById(R.id.timer);
+        mTimerView = (TimerView) root.findViewById(R.id.timer);
 
         mStartView = (Button) root.findViewById(R.id.start);
         mStartView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveTimeBalanceDeadline(System.currentTimeMillis() + DateUtils.HOUR_IN_MILLIS); //TODO: update
+                saveTimeBalanceDeadline(System.currentTimeMillis() + DateUtils.HOUR_IN_MILLIS + DateUtils.MINUTE_IN_MILLIS); //TODO: update
                 displayRemainingTime();
                 if (mTimerUpdateHandler == null) {
                     setupTimerHandler();
@@ -126,31 +124,9 @@ public class GlobalTimerFragment extends Fragment {
     private void displayRemainingTime() {
         if (mTimeBalanceDeadline == 0) {
             mTimerView.setText(getString(R.string.start_timer_message));
-            return;
+        } else {
+            long timeRemaining = mTimeBalanceDeadline - System.currentTimeMillis();
+            mTimerView.setText(timeRemaining);
         }
-
-        long timeRemaining = mTimeBalanceDeadline - System.currentTimeMillis();
-        long hours = TimeUnit.MILLISECONDS.toHours(timeRemaining);
-        timeRemaining -= hours * DateUtils.HOUR_IN_MILLIS;
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeRemaining);
-        timeRemaining -= minutes * DateUtils.MINUTE_IN_MILLIS;
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeRemaining);
-
-        if (hours < 0 || minutes < 0) {
-            seconds = Math.abs(seconds);
-        }
-        if (hours < 0) {
-            minutes = Math.abs(minutes);
-        }
-
-        StringBuilder builder = new StringBuilder();
-        if (hours != 0) {
-            builder.append(getString(R.string.timer_hours, hours));
-        }
-        if (minutes != 0 || hours != 0) {
-            builder.append(getString(R.string.timer_minutes, minutes));
-        }
-        builder.append(getString(R.string.timer_seconds, seconds));
-        mTimerView.setText(builder.toString());
     }
 }

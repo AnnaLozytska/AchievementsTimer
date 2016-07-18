@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="LargeTimerText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/timer_text_large</item>
+    </style>
+
+    <style name="SmallTimerText" parent="LargeTimerText">
+        <item name="android:textSize">@dimen/timer_text_small</item>
+    </style>
+
 </resources>
