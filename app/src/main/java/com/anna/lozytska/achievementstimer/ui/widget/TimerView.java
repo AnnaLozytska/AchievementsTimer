@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
  * Created by alozytska on 18.07.16.
  */
 public class TimerView extends TextView {
-    private static final long WARNING_TIME_REMAINING_MS = DateUtils.HOUR_IN_MILLIS;
+    private static final long SOON_TIME_REMAINING_MS = DateUtils.DAY_IN_MILLIS;
+    private static final long WARNING_TIME_REMAINING_MS = - DateUtils.DAY_IN_MILLIS;
 
     public TimerView(Context context) {
         this(context, null);
@@ -77,10 +78,12 @@ public class TimerView extends TextView {
         super.setText(builder.toString());
 
         // set proper text color depending of value or remaining time
-        if (timeRemaining < 0) {
+        if (timeRemaining < WARNING_TIME_REMAINING_MS) {
             setTextColor(getResources().getColor(R.color.colorTimerAlarm));
-        } else if (timeRemaining < WARNING_TIME_REMAINING_MS) {
-            setTextColor(getResources().getColor(R.color.colorTimerWarning));
+        } else if (timeRemaining < 0) {
+            setTextColor(getResources().getColor(R.color.colorTimerWarning));}
+        else if (timeRemaining < SOON_TIME_REMAINING_MS) {
+            setTextColor(getResources().getColor(R.color.colorTimerSoon));
         } else {
             setTextColor(getResources().getColor(R.color.colorTimerNormal));
         }
@@ -89,6 +92,6 @@ public class TimerView extends TextView {
     @Override
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
-        setTextColor(getResources().getColor(R.color.colorTimerText));
+        setTextColor(getResources().getColor(R.color.colorTimerNormal));
     }
 }
