@@ -11,19 +11,20 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.anna.lozytska.achievementstimer.R;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 
-public class GlobalTimerFragment extends Fragment {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class ToolBarFragment extends Fragment {
     private static final String TIME_BALANCE_DEADLINE = "time_balance_deadline";
     private static final int TIMER_UPDATE_MESSAGE = 0;
     private static final long TIMER_UPDATE_INTERVAL_MS = DateUtils.SECOND_IN_MILLIS;
 
+    @BindView(R.id.timer)
     private TimerView mTimerView;
-    private Button mStartView;
-    private Button mResetView;
 
     private Handler mTimerUpdateHandler;
     private long mTimeBalanceDeadline;
@@ -32,35 +33,8 @@ public class GlobalTimerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_global_timer, container, false);
-        mTimerView = (TimerView) root.findViewById(R.id.timer);
-
-        mStartView = (Button) root.findViewById(R.id.start);
-        mStartView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveTimeBalanceDeadline(System.currentTimeMillis() + DateUtils.HOUR_IN_MILLIS + DateUtils.MINUTE_IN_MILLIS); //TODO: update
-                displayRemainingTime();
-                if (mTimerUpdateHandler == null) {
-                    setupTimerHandler();
-                }
-                sendDelayedTimerUpdate();
-                mStartView.setClickable(false);
-                mResetView.setClickable(true);
-            }
-        });
-        mResetView = (Button) root.findViewById(R.id.reset);
-        mResetView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveTimeBalanceDeadline(0L);
-                stopTimerUpdate();
-                displayRemainingTime();
-                mStartView.setClickable(true);
-                mResetView.setClickable(false);
-            }
-        });
-
+        View root = inflater.inflate(R.layout.fragment_toolbar, container, false);
+        ButterKnife.bind(this, root);
         return root;
     }
 
@@ -76,12 +50,12 @@ public class GlobalTimerFragment extends Fragment {
                 setupTimerHandler();
             }
             sendDelayedTimerUpdate();
-            mStartView.setClickable(false);
-            mResetView.setClickable(true);
+//            mStartView.setClickable(false);
+//            mResetView.setClickable(true);
         } else {
             stopTimerUpdate();
-            mStartView.setClickable(true);
-            mResetView.setClickable(false);
+//            mStartView.setClickable(true);
+//            mResetView.setClickable(false);
         }
         displayRemainingTime();
     }

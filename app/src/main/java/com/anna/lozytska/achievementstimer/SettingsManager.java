@@ -48,4 +48,8 @@ public class SettingsManager {
         return mResources.getString(resId);
     }
 
+    public long getCurrentTimeRemaining() {
+        return getPreferences().getLong(getKey(R.string.pref_current_time_remaining), 0L);
+    }
+
 }
