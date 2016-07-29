@@ -3,4 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorTimerNormal">@android:color/secondary_text_light</color>
+    <color name="colorTimerSoon">#219516</color>
+    <color name="colorTimerWarning">#FF5F09</color>
+    <color name="colorTimerAlarm">#C23215</color>
+
 </resources>
