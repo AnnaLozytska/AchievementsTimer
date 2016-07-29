@@ -24,7 +24,7 @@ public class ToolBarFragment extends Fragment {
     private static final long TIMER_UPDATE_INTERVAL_MS = DateUtils.SECOND_IN_MILLIS;
 
     @BindView(R.id.timer)
-    private TimerView mTimerView;
+    TimerView mTimerView;
 
     private Handler mTimerUpdateHandler;
     private long mTimeBalanceDeadline;
@@ -97,7 +97,7 @@ public class ToolBarFragment extends Fragment {
 
     private void displayRemainingTime() {
         if (mTimeBalanceDeadline == 0) {
-            mTimerView.setText(getString(R.string.start_timer_message));
+            mTimerView.setText(getString(R.string.no_current_task));
         } else {
             long timeRemaining = mTimeBalanceDeadline - System.currentTimeMillis();
             mTimerView.setText(timeRemaining);

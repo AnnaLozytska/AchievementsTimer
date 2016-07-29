@@ -1,9 +1,5 @@
 package com.anna.lozytska.achievementstimer.rxjava;
 
-import android.content.Context;
-
-import com.anna.lozytska.achievementstimer.SettingsManager;
-
 import rx.Observable;
 import rx.Subscriber;
 
@@ -15,11 +11,11 @@ public class CurrentAchievementTimerObservable {
 
     private Observable<Long> mCurrentTimerObservable;
 
-    public static CurrentAchievementTimerObservable getInstance(Context appContext) {
+    public static CurrentAchievementTimerObservable getInstance() {
         if (sInstance == null) {
             synchronized (CurrentAchievementTimerObservable.class) {
                 if (sInstance == null) {
-                    sInstance = new CurrentAchievementTimerObservable(Context appContext);
+                    sInstance = new CurrentAchievementTimerObservable();
 
                 }
             }
@@ -27,7 +23,6 @@ public class CurrentAchievementTimerObservable {
         return sInstance;
     }
 
-    private final Context mContext;
     private long mCurrentTimer;
 
     private CurrentAchievementTimerObservable() {
@@ -36,6 +31,6 @@ public class CurrentAchievementTimerObservable {
             public void call(Subscriber<? super Long> subscriber) {
 
             }
-        })
+        });
     }
 }

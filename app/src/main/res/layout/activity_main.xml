@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.anna.lozytska.achievementstimer.ui.activity.MainActivity">
@@ -23,7 +24,7 @@
                 android:id="@+id/main.backdrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
+                android:scaleType="fitCenter"
                 android:src="@drawable/placeholder"
                 app:layout_collapseMode="parallax" />
 
@@ -39,6 +40,8 @@
             <fragment
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:name="com.anna.lozytska.achievementstimer.ui.fragment.ToolBarFragment"
                 android:id="@+id/toolbar_fragment" />
 
@@ -53,26 +56,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/achievements_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/placeholder"
-                android:scaleType="fitCenter"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-            <Button
-                android:id="@+id/start"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/start" />
-
-            <Button
-                android:id="@+id/reset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/start"
-                android:layout_toRightOf="@+id/start"
-                android:text="@string/reset" />
+                android:layout_height="match_parent"/>
 
         </FrameLayout>
 
@@ -81,8 +68,9 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_watch_24dp"
-        app:layout_anchor="@id/toolbar"
-        app:layout_anchorGravity="bottom|right|end" />
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:src="@drawable/ic_add_white_24dp" />
 
 </android.support.design.widget.CoordinatorLayout>
