@@ -38,30 +38,28 @@
             app:layout_collapseMode="pin">
 
             <fragment
+                android:id="@+id/toolbar_fragment"
+                android:name="com.anna.lozytska.achievementstimer.ui.fragment.ToolBarFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:name="com.anna.lozytska.achievementstimer.ui.fragment.ToolBarFragment"
-                android:id="@+id/toolbar_fragment" />
+                android:layout_marginStart="@dimen/activity_horizontal_margin" />
 
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
+        <fragment
+            android:id="@+id/tasks_fragment"
+            android:name="com.anna.lozytska.achievementstimer.ui.fragment.TaskListFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/achievements_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </FrameLayout>
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/task_item_horizontal_margin"
+            android:layout_marginStart="@dimen/task_item_horizontal_margin" />
 
     </android.support.v4.widget.NestedScrollView>
 
@@ -69,8 +67,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:src="@drawable/ic_add_white_24dp" />
 
 </android.support.design.widget.CoordinatorLayout>

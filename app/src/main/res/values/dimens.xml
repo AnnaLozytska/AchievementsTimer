@@ -5,4 +5,7 @@
 
     <dimen name="timer_text_large">40sp</dimen>
     <dimen name="timer_text_small">36sp</dimen>
+
+    <dimen name="task_item_horizontal_margin">4dp</dimen>
+    <dimen name="task_item_vertical_margin">4dp</dimen>
 </resources>

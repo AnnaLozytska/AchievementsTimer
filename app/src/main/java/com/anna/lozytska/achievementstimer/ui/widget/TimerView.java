@@ -28,29 +28,11 @@ public class TimerView extends TextView {
 
     public TimerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setLargeTextStyle(context);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public TimerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        setLargeTextStyle(context);
-    }
-
-    private void setLargeTextStyle(Context context) {
-        if (Build.VERSION.SDK_INT < 23) {
-            setTextAppearance(context, R.style.LargeTimerText);
-        } else {
-            setTextAppearance(R.style.LargeTimerText);
-        }
-    }
-
-    private void setSmallTextStyle(Context context) {
-        if (Build.VERSION.SDK_INT < 23) {
-            setTextAppearance(context, R.style.SmallTimerText);
-        } else {
-            setTextAppearance(R.style.LargeTimerText);
-        }
     }
 
     public void setText(long timeRemaining) {

@@ -2,8 +2,6 @@ package com.anna.lozytska.achievementstimer;
 
 import android.app.Application;
 
-import com.anna.lozytska.achievementstimer.rxjava.CurrentAchievementTimerObservable;
-
 /**
  * Created by alozytska on 28.07.16.
  */
@@ -26,11 +24,5 @@ public class App extends Application {
 
     public SettingsManager getSettingsManager() {
         return mSettingsManager;
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        CurrentAchievementTimerObservable.getInstance(this).unsubscribeAll();
     }
 }
