@@ -30,10 +30,10 @@ dependencies {
     compile 'io.reactivex:rxjava:1.1.6'
     compile 'com.jakewharton:butterknife:8.2.1'
     apt 'com.jakewharton:butterknife-compiler:8.2.1'
-    compile 'com.yahoo.squidb:squidb:3.0.0'
+    compile 'com.yahoo.squidb:squidb:2.0.0'
     compile 'com.yahoo.squidb:squidb-annotations:3.0.0'
     compile 'com.yahoo.squidb:squidb-android:3.0.0'
     apt 'com.yahoo.squidb:squidb-processor:3.0.0'
-    compile 'com.yahoo.squidb:squidb-reactive:2.0.0'
+    compile 'com.yahoo.squidb:squidb-reactive:3.0.0'
     testCompile 'junit:junit:4.12'
 }

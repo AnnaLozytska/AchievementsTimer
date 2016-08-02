@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anna.lozytska.achievementstimer.R;
-import com.anna.lozytska.achievementstimer.model.TaskModel;
+import com.anna.lozytska.achievementstimer.db.modelspec.Task;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 import com.anna.lozytska.achievementstimer.util.Utils;
 
@@ -23,12 +23,12 @@ import butterknife.ButterKnife;
  */
 public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder> {
 
-    private List<TaskModel> mTasks;
+    private List<Task> mTasks;
 
     public TasksAdapter() {
     }
 
-    public void setTasks(List<TaskModel> tasks) {
+    public void setTasks(List<Task> tasks) {
         mTasks = tasks;
         notifyDataSetChanged();
     }
@@ -43,7 +43,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
 
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
-        final TaskModel task = mTasks.get(position);
+        final Task task = mTasks.get(position);
 
         //TODO: load image
 

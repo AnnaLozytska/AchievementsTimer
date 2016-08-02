@@ -11,15 +11,15 @@ public class App extends Application {
     private static volatile App sInstance;
     private SettingsManager mSettingsManager;
 
+    public static App getInstance() {
+        return sInstance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         sInstance = this;
         mSettingsManager = SettingsManager.getInstance(this);
-    }
-
-    public static App getsInstance() {
-        return sInstance;
     }
 
     public SettingsManager getSettingsManager() {
