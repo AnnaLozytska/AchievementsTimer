@@ -48,7 +48,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         //TODO: load image
 
         holder.title.setText(task.getTitle());
-        holder.timer.setText(task.getEstimatedTime() - task.getSpentTime());
+        holder.timer.setText(task.getEstimatedTime() - task.getTotalSpentTime());
         holder.isAchieved.setChecked(task.isAchieved());
     }
 

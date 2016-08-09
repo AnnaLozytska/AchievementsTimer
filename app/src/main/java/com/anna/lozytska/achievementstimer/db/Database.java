@@ -16,11 +16,9 @@ public class Database extends ReactiveSquidDatabase {
     private static final String DB_NAME = "achievements_timer.db";
     private static final int VERSION = 1;
 
-    private ISQLiteOpenHelper mOpenHelper;
-
     public static Database getInstance() {
-        if (sInstance == null) {
-            synchronized (Database.class) {
+        synchronized (Database.class) {
+            if (sInstance == null) {
                 sInstance = new Database();
             }
         }
