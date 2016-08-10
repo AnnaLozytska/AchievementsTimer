@@ -2,12 +2,14 @@ package com.anna.lozytska.achievementstimer.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.R;
 import com.anna.lozytska.achievementstimer.db.modelspec.Task;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
@@ -25,6 +27,8 @@ import butterknife.ButterKnife;
  * Created by alozytska on 31.07.16.
  */
 public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder> {
+    //    private static final String TAG = TaskListFragment.class.getSimpleName();
+    private static final String TAG = AppConfig.TEST_LOG_TAG;
 
     private List<Task> mTasks;
 
@@ -33,8 +37,9 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     }
 
     public void addTask(@NotNull Task task) {
-        int index = mTasks.indexOf(task);
+        int index = findTaskIndexById(task);
         if (index == -1) {
+            Log.d(TAG, "task is new");
             switch (task.getTaskState()) {
                 case CREATED:
                 case UPDATED:
@@ -44,17 +49,27 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
                 default:
             }
         } else {
+            Log.d(TAG, "task exists");
             switch (task.getTaskState()) {
                 case CREATED:
                 case UPDATED:
                     mTasks.set(index, task);
                     notifyItemChanged(index);
                     break;
-                case DELETED:
+                case ARCHIVED:
                     mTasks.remove(task);
                     notifyItemRemoved(index);
             }
         }
+    }
+
+    private int findTaskIndexById(Task task) {
+        for (Task existingTask : mTasks) {
+            if (existingTask.getId() == task.getId()) {
+                return mTasks.indexOf(existingTask);
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -67,18 +82,13 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
 
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
-        final Task task = getValue(position);
+        final Task task = mTasks.get(position);
 
         //TODO: load image
 
         holder.title.setText(task.getTitle());
         holder.timer.setText(task.getEstimatedTime() - task.getTotalSpentTime());
         holder.isAchieved.setChecked(task.isAchieved());
-    }
-
-    private Task getValue(int position) {
-
-        return null;
     }
 
     @Override
