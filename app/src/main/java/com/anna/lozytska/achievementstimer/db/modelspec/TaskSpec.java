@@ -36,16 +36,16 @@ public class TaskSpec {
 
     @ModelMethod
     public static boolean isAchieved(Task task) {
-        return task.getAchievedTimestamp() == -1;
+        return task.getAchievedTimestamp() != -1;
     }
 
     @ModelMethod
     public static void setIsAchieved(Task task, boolean isAchieved) {
-        long achievedTimestamp = -1;
         if (isAchieved) {
-            achievedTimestamp = System.currentTimeMillis();
+            task.setAchievedTimestamp(System.currentTimeMillis());
+        } else {
+            task.setAchievedTimestamp(-1L);
         }
-        task.setAchievedTimestamp(achievedTimestamp);
     }
 
     /**
@@ -68,7 +68,7 @@ public class TaskSpec {
     @ModelMethod
     public static TaskState getTaskState(Task task) {
         if (task.getDeletedTimestamp() != -1) {
-            return TaskState.DELETED;
+            return TaskState.ARCHIVED;
         }
         if (task.getUpdatedTimestamp() != -1) {
             return TaskState.UPDATED;
@@ -92,7 +92,7 @@ public class TaskSpec {
                 task.setUpdatedTimestamp(timeStamp);
                 task.setDeletedTimestamp(-1L);
                 break;
-            case DELETED:
+            case ARCHIVED:
                 task.setDeletedTimestamp(timeStamp);
                 break;
         }
