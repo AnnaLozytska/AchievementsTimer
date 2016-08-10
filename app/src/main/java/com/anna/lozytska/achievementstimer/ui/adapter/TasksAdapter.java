@@ -13,6 +13,9 @@ import com.anna.lozytska.achievementstimer.db.modelspec.Task;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 import com.anna.lozytska.achievementstimer.util.Utils;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,11 +29,32 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     private List<Task> mTasks;
 
     public TasksAdapter() {
+        mTasks = new ArrayList<>();
     }
 
-    public void setTasks(List<Task> tasks) {
-        mTasks = tasks;
-        notifyDataSetChanged();
+    public void addTask(@NotNull Task task) {
+        int index = mTasks.indexOf(task);
+        if (index == -1) {
+            switch (task.getTaskState()) {
+                case CREATED:
+                case UPDATED:
+                    mTasks.add(task);
+                    notifyItemInserted(mTasks.indexOf(task));
+                    break;
+                default:
+            }
+        } else {
+            switch (task.getTaskState()) {
+                case CREATED:
+                case UPDATED:
+                    mTasks.set(index, task);
+                    notifyItemChanged(index);
+                    break;
+                case DELETED:
+                    mTasks.remove(task);
+                    notifyItemRemoved(index);
+            }
+        }
     }
 
     @Override
@@ -43,13 +67,18 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
 
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
-        final Task task = mTasks.get(position);
+        final Task task = getValue(position);
 
         //TODO: load image
 
         holder.title.setText(task.getTitle());
         holder.timer.setText(task.getEstimatedTime() - task.getTotalSpentTime());
         holder.isAchieved.setChecked(task.isAchieved());
+    }
+
+    private Task getValue(int position) {
+
+        return null;
     }
 
     @Override
