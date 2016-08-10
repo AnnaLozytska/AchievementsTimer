@@ -6,6 +6,6 @@ package com.anna.lozytska.achievementstimer.model;
 public enum TaskState {
     CREATED,
     UPDATED,
-    ARCHIVED,
+    DELETED,
     UNKNOWN
 }

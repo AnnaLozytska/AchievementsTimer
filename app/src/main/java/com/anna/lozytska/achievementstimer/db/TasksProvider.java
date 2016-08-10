@@ -38,7 +38,7 @@ private static final String TAG = AppConfig.TEST_LOG_TAG;
         testTask = new Task();
         testTask.setId(1L);
         testTask.setTitle("Test title " + count);
-        testTask.setTaskState(TaskState.CREATED);
+        testTask.setState(TaskState.CREATED);
     }
 
     public Observable<Task> getCurrentTask() {
@@ -76,9 +76,9 @@ private static final String TAG = AppConfig.TEST_LOG_TAG;
 
     }
 
-    public void archiveTask(Task task) {
+    public void deleteTask(Task task) {
         //TODO: TBD
-        Log.d(TAG, "TBD: task archived");
+        Log.d(TAG, "TBD: task deleted");
 
     }
 }

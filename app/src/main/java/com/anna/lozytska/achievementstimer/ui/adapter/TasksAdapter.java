@@ -40,7 +40,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         int index = findTaskIndexById(task);
         if (index == -1) {
             Log.d(TAG, "task is new");
-            switch (task.getTaskState()) {
+            switch (task.getState()) {
                 case CREATED:
                 case UPDATED:
                     mTasks.add(task);
@@ -50,13 +50,13 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
             }
         } else {
             Log.d(TAG, "task exists");
-            switch (task.getTaskState()) {
+            switch (task.getState()) {
                 case CREATED:
                 case UPDATED:
                     mTasks.set(index, task);
                     notifyItemChanged(index);
                     break;
-                case ARCHIVED:
+                case DELETED:
                     mTasks.remove(task);
                     notifyItemRemoved(index);
             }

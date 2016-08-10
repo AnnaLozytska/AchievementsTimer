@@ -66,9 +66,9 @@ public class TaskSpec {
      * @return task's {@link TaskState}
      */
     @ModelMethod
-    public static TaskState getTaskState(Task task) {
+    public static TaskState getState(Task task) {
         if (task.getDeletedTimestamp() != -1) {
-            return TaskState.ARCHIVED;
+            return TaskState.DELETED;
         }
         if (task.getUpdatedTimestamp() != -1) {
             return TaskState.UPDATED;
@@ -80,7 +80,7 @@ public class TaskSpec {
     }
 
     @ModelMethod
-    public static void setTaskState(Task task, TaskState taskState) {
+    public static void setState(Task task, TaskState taskState) {
         long timeStamp = System.currentTimeMillis();
         switch (taskState) {
             case CREATED:
@@ -92,7 +92,7 @@ public class TaskSpec {
                 task.setUpdatedTimestamp(timeStamp);
                 task.setDeletedTimestamp(-1L);
                 break;
-            case ARCHIVED:
+            case DELETED:
                 task.setDeletedTimestamp(timeStamp);
                 break;
         }
