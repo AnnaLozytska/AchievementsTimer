@@ -1,7 +1,7 @@
 package com.anna.lozytska.achievementstimer.db;
 
 import com.anna.lozytska.achievementstimer.App;
-import com.anna.lozytska.achievementstimer.db.modelspec.Task;
+import com.anna.lozytska.achievementstimer.db.modelspec.TaskRow;
 import com.yahoo.squidb.android.AndroidOpenHelper;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
@@ -11,15 +11,15 @@ import com.yahoo.squidb.sql.Table;
 /**
  * Created by alozytska on 01.08.16.
  */
-public class Database extends ReactiveSquidDatabase {
-    private static volatile Database sInstance;
+class AppReactiveSquidDatabase extends ReactiveSquidDatabase {
+    private static volatile AppReactiveSquidDatabase sInstance;
     private static final String DB_NAME = "achievements_timer.db";
     private static final int VERSION = 1;
 
-    public static Database getInstance() {
-        synchronized (Database.class) {
+    public static AppReactiveSquidDatabase getInstance() {
+        synchronized (AppReactiveSquidDatabase.class) {
             if (sInstance == null) {
-                sInstance = new Database();
+                sInstance = new AppReactiveSquidDatabase();
             }
         }
         return sInstance;
@@ -38,7 +38,7 @@ public class Database extends ReactiveSquidDatabase {
     @Override
     protected Table[] getTables() {
         return new Table[] {
-                Task.TABLE
+                TaskRow.TABLE
         };
     }
 

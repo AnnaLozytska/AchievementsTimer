@@ -7,8 +7,7 @@ package com.anna.lozytska.achievementstimer.db;
 import android.util.Log;
 
 import com.anna.lozytska.achievementstimer.AppConfig;
-import com.anna.lozytska.achievementstimer.db.modelspec.Task;
-import com.anna.lozytska.achievementstimer.model.TaskState;
+import com.anna.lozytska.achievementstimer.model.TaskModel;
 
 import rx.Observable;
 
@@ -17,13 +16,12 @@ import rx.Observable;
  * requesting and updating tasks.
  */
 public class TasksProvider {
-//    private static final String TAG = TasksProvider.class.getSimpleName();
-private static final String TAG = AppConfig.TEST_LOG_TAG;
+    //    private static final String TAG = TasksProvider.class.getSimpleName();
+    private static final String TAG = AppConfig.TEST_LOG_TAG;
 
     private static volatile TasksProvider sInstance;
 
-    private Task testTask;
-    private int count;
+    private final AppReactiveSquidDatabase mDatabase;
 
     public static TasksProvider getInstance() {
         synchronized (TasksProvider.class) {
@@ -35,48 +33,43 @@ private static final String TAG = AppConfig.TEST_LOG_TAG;
     }
 
     private TasksProvider() {
-        testTask = new Task();
-        testTask.setId(1L);
-        testTask.setTitle("Test title " + count);
-        testTask.setState(TaskState.CREATED);
+        mDatabase = AppReactiveSquidDatabase.getInstance();
     }
 
-    public Observable<Task> getCurrentTask() {
+    public Observable<TaskModel> getCurrentTask() {
         //TODO: TBD
-        return Observable.just(testTask);
+        return null;
     }
 
-    public Observable<Task> getAchievementsStream() {
+    public Observable<TaskModel> getAchievementsStream() {
         Log.d(TAG, "Entered getAchievementsStream()");
         return getSubTasksStream(0L);
     }
 
-    public Observable<Task> getSubTasksStream(long parentTaskId) {
+    public Observable<TaskModel> getSubTasksStream(long parentTaskId) {
         //TODO: TBD
-        count++;
-        testTask.setTitle("Test title " + count);
-        return Observable.just(testTask);
+        return null;
 
     }
 
-    public Observable<Task> getTask(long id) {
+    public Observable<TaskModel> getTask(long id) {
         //TODO: TBD
-        return Observable.just(testTask);
+        return null;
 
     }
 
-    public void addTask(Task task) {
+    public void addTask(TaskModel task) {
         //TODO: TBD
         Log.d(TAG, "TBD: task added");
     }
 
-    public void updateTask(Task task) {
+    public void updateTask(TaskModel task) {
         //TODO: TBD
         Log.d(TAG, "TBD: task updated");
 
     }
 
-    public void deleteTask(Task task) {
+    public void deleteTask(TaskModel task) {
         //TODO: TBD
         Log.d(TAG, "TBD: task deleted");
 

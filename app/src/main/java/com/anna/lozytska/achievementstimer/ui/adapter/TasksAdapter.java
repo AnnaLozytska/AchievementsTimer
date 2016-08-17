@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.R;
-import com.anna.lozytska.achievementstimer.db.modelspec.Task;
+import com.anna.lozytska.achievementstimer.db.modelspec.TaskModel;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 import com.anna.lozytska.achievementstimer.util.Utils;
 
@@ -24,19 +24,19 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by alozytska on 31.07.16.
+ * Created by Anna Lozytska on 31.07.16.
  */
 public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder> {
     //    private static final String TAG = TaskListFragment.class.getSimpleName();
     private static final String TAG = AppConfig.TEST_LOG_TAG;
 
-    private List<Task> mTasks;
+    private List<TaskModel> mTasks;
 
     public TasksAdapter() {
         mTasks = new ArrayList<>();
     }
 
-    public void addTask(@NotNull Task task) {
+    public void addTask(@NotNull TaskModel task) {
         int index = findTaskIndexById(task);
         if (index == -1) {
             Log.d(TAG, "task is new");
@@ -63,8 +63,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         }
     }
 
-    private int findTaskIndexById(Task task) {
-        for (Task existingTask : mTasks) {
+    private int findTaskIndexById(TaskModel task) {
+        for (TaskModel existingTask : mTasks) {
             if (existingTask.getId() == task.getId()) {
                 return mTasks.indexOf(existingTask);
             }
@@ -82,7 +82,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
 
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
-        final Task task = mTasks.get(position);
+        final TaskModel task = mTasks.get(position);
 
         //TODO: load image
 
