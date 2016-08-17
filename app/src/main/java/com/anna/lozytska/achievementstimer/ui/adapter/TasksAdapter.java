@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.R;
-import com.anna.lozytska.achievementstimer.db.modelspec.TaskModel;
+import com.anna.lozytska.achievementstimer.model.TaskModel;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 import com.anna.lozytska.achievementstimer.util.Utils;
 
@@ -87,7 +87,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         //TODO: load image
 
         holder.title.setText(task.getTitle());
-        holder.timer.setText(task.getEstimatedTime() - task.getTotalSpentTime());
+        holder.timer.setText(task.getEstimatedTime() - task.getSpentTime());
         holder.isAchieved.setChecked(task.isAchieved());
     }
 
