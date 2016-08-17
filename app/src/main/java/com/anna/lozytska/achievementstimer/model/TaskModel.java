@@ -40,7 +40,6 @@ public class TaskModel {
 
     public void setTitle(String title) {
         taskRow.setTitle(title);
-        updateState();
     }
 
     public String getDescription() {
@@ -49,7 +48,6 @@ public class TaskModel {
 
     public void setDescription(String description) {
         taskRow.setDescription(description);
-        updateState();
     }
 
     public String getImageUrl() {
@@ -58,7 +56,22 @@ public class TaskModel {
 
     public void setImageUrl(String imageUrl) {
         taskRow.setImageUrl(imageUrl);
-        updateState();
+    }
+
+    public long getParentTaskId() {
+        return taskRow.getParentTaskId();
+    }
+
+    public void setParentTaskId(long parentTaskId) {
+        taskRow.setParentTaskId(parentTaskId);
+    }
+
+    public boolean isCurrent() {
+        return taskRow.isCurrent();
+    }
+
+    public void setCurrent(boolean isCurrent) {
+        taskRow.setIsCurrent(isCurrent);
     }
 
     public long getEstimatedTime() {
@@ -67,8 +80,8 @@ public class TaskModel {
 
     public void setEstimatedTime(long estimatedTime) {
         taskRow.setEstimatedTime(estimatedTime);
-        updateState();
     }
+    
     /**
      * Returns sum of all time intervals ever spent on this task.
      */
@@ -84,7 +97,6 @@ public class TaskModel {
             currentInterval = System.currentTimeMillis() - taskRow.getLastStartTimestamp();
         }
         taskRow.setSpentBeforeLastStart(spentTime - currentInterval);
-        updateState();
     }
 
     public boolean isRunning() {
@@ -96,7 +108,6 @@ public class TaskModel {
             throw new IllegalStateException("Task is already running");
         }
         taskRow.setLastStartTimestamp(System.currentTimeMillis());
-        updateState();
     }
 
     public void stopRun() {
@@ -106,7 +117,6 @@ public class TaskModel {
         long lastInterval = System.currentTimeMillis() - taskRow.getLastStartTimestamp();
         taskRow.setSpentBeforeLastStart(taskRow.getSpentBeforeLastStart() + lastInterval);
         taskRow.setLastStartTimestamp(-1L);
-        updateState();
     }
 
     public boolean isAchieved() {
@@ -119,7 +129,6 @@ public class TaskModel {
         } else {
             taskRow.setAchievedTimestamp(-1L);
         }
-        updateState();
     }
 
     /**
@@ -135,7 +144,7 @@ public class TaskModel {
         if (taskRow.getUpdatedTimestamp() != -1) {
             return TaskState.UPDATED;
         }
-        if (taskRow.getCreatedTimestamp() != -1) {
+        if (getId() == 0 || taskRow.getCreatedTimestamp() != -1) {
             return TaskState.CREATED;
         }
         return TaskState.UNKNOWN;
@@ -159,14 +168,6 @@ public class TaskModel {
         }
     }
 
-    private void updateState() {
-        if (getId() == 0) {
-            setState(TaskState.CREATED);
-        } else {
-            setState(TaskState.UPDATED);
-        }
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof TaskModel)) {
@@ -182,6 +183,13 @@ public class TaskModel {
                 + ", title = " + taskRow.getTitle()
                 + ", description = " + taskRow.getDescription()
                 + ", imageUrl = " + taskRow.getImageUrl()
-                + ", ";
+                + ", parent task id = " + taskRow.getParentTaskId()
+                + ", estimated time = " + getEstimatedTime()
+                + ", spent time = " + getSpentTime()
+                + ", isCurrent = " + isCurrent()
+                + ", isRunning = " + isRunning()
+                + ", isAchieved = " + isAchieved()
+                + ", state = " + getState()
+                ;
     }
 }
