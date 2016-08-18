@@ -8,8 +8,10 @@ import android.util.Log;
 
 import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.model.TaskModel;
+import com.anna.lozytska.achievementstimer.model.TaskState;
 
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 /**
  * Layer class between tasks presenters and persistent storage. Provides convenient API for
@@ -22,6 +24,7 @@ public class TasksProvider {
     private static volatile TasksProvider sInstance;
 
     private final AppReactiveSquidDatabase mDatabase;
+    private final PublishSubject<TaskModel> mTasksUpdates;
 
     public static TasksProvider getInstance() {
         synchronized (TasksProvider.class) {
@@ -34,6 +37,11 @@ public class TasksProvider {
 
     private TasksProvider() {
         mDatabase = AppReactiveSquidDatabase.getInstance();
+        mTasksUpdates = PublishSubject.create();
+    }
+
+    public Observable<TaskModel> getTasksUpdates() {
+        return mTasksUpdates;
     }
 
     public Observable<TaskModel> getCurrentTask() {
@@ -42,7 +50,6 @@ public class TasksProvider {
     }
 
     public Observable<TaskModel> getAchievementsStream() {
-        Log.d(TAG, "Entered getAchievementsStream()");
         return getSubTasksStream(0L);
     }
 
@@ -59,8 +66,16 @@ public class TasksProvider {
     }
 
     public void addTask(TaskModel task) {
-        //TODO: TBD
-        Log.d(TAG, "TBD: task added");
+        mDatabase.beginTransaction();
+        boolean isSuccess = mDatabase.persist(task.toTaskRow());
+        if (isSuccess) {
+            mDatabase.setTransactionSuccessful();
+            task.setState(TaskState.CREATED);
+            mTasksUpdates.onNext(task);
+        } else {
+            mTasksUpdates.onError(new Throwable("Failed to add: " + task.toString()));
+        }
+        mDatabase.endTransaction();
     }
 
     public void updateTask(TaskModel task) {

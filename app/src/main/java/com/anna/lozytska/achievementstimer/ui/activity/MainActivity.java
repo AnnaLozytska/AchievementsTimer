@@ -5,9 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.anna.lozytska.achievementstimer.R;
+import com.anna.lozytska.achievementstimer.db.TasksProvider;
+import com.anna.lozytska.achievementstimer.model.TaskModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,5 +25,12 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(mToolbar);
 
+    }
+
+    @OnClick(R.id.add_task)
+    void addNewTask() {
+        //FIXME test implementation, remove with normal feature
+        TaskModel newTask = new TaskModel("Some title");
+        TasksProvider.getInstance().addTask(newTask);
     }
 }

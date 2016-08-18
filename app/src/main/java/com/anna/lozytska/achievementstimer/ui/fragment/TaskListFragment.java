@@ -2,11 +2,11 @@ package com.anna.lozytska.achievementstimer.ui.fragment;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,21 +14,20 @@ import android.view.ViewGroup;
 import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.R;
 import com.anna.lozytska.achievementstimer.db.TasksProvider;
-import com.anna.lozytska.achievementstimer.db.modelspec.Task;
+import com.anna.lozytska.achievementstimer.model.TaskModel;
 import com.anna.lozytska.achievementstimer.ui.adapter.TasksAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by alozytska on 31.07.16.
  */
 public class TaskListFragment extends Fragment {
-//    private static final String TAG = TaskListFragment.class.getSimpleName();
+    //    private static final String TAG = TaskListFragment.class.getSimpleName();
     private static final String TAG = AppConfig.TEST_LOG_TAG;
 
     private static final int TASKS_PER_ROW = 2;
@@ -38,14 +37,8 @@ public class TaskListFragment extends Fragment {
 
     private TasksAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
-    private TasksProvider mTasksProvider;
-    private Subscription mTasksSubscription;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mTasksProvider = TasksProvider.getInstance();
-    }
+    private Subscriber<TaskModel> mTasksStreamSubscriber;
+    private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Nullable
     @Override
@@ -55,43 +48,58 @@ public class TaskListFragment extends Fragment {
 
         mLayoutManager = new GridLayoutManager(getContext(), TASKS_PER_ROW);
         mTasksView.setLayoutManager(mLayoutManager);
-
         mAdapter = new TasksAdapter();
         mTasksView.setAdapter(mAdapter);
-
         mTasksView.addItemDecoration(new TaskDecoration());
+
+        mTasksStreamSubscriber = new Subscriber<TaskModel>() {
+            @Override
+            public void onCompleted() {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+            }
+
+            @Override
+            public void onNext(TaskModel task) {
+                if (task != null && mAdapter.canAddItem(task)) {
+                    mAdapter.addOrUpdateItem(task);
+                }
+            }
+        };
+
         return root;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mTasksSubscription = mTasksProvider.getAchievementsStream()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Task>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onNext(Task task) {
-                        Log.d(TAG, "getSubTasksStream(): onNext. Task id: " + task.getId());
-                        mAdapter.addTask(task);
-                    }
-                });
+        mSubscriptions.add(
+                TasksProvider.getInstance()
+                        .getTasksUpdates()
+                        .filter(byParentTask(0L))
+                        .subscribe(mTasksStreamSubscriber)
+        );
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (!mTasksSubscription.isUnsubscribed()) {
-            mTasksSubscription.unsubscribe();
-        }
+        mSubscriptions.clear();
+    }
+
+    @NonNull
+    private Func1<TaskModel, Boolean> byParentTask(final long parentTaskId) {
+        return new Func1<TaskModel, Boolean>() {
+            @Override
+            public Boolean call(TaskModel taskModel) {
+                return taskModel.getParentTaskId() == parentTaskId;
+            }
+        };
+    }
+
+    private void updateItems(TaskModel task) {
     }
 
     private class TaskDecoration extends RecyclerView.ItemDecoration {

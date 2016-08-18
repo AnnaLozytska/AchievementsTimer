@@ -2,7 +2,6 @@ package com.anna.lozytska.achievementstimer.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,10 +35,20 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         mTasks = new ArrayList<>();
     }
 
-    public void addTask(@NotNull TaskModel task) {
+    /**
+     * Adds new item to {@link TasksAdapter} if there is no {@link TaskModel} with same id among existing items
+     * and it has the same parent task as items in this adapter.
+     * If item with same id is already added to this adapter, new item will replace it.
+     * @param task to be added or updated in this adapter
+     * @throws IllegalStateException if task has different parent task than items in this adapter.
+     */
+    public void addOrUpdateItem(@NotNull TaskModel task) throws IllegalStateException {
+        if (!canAddItem(task)) {
+            throw new IllegalStateException("Only tasks this same parent task id can be added");
+        }
+
         int index = findTaskIndexById(task);
         if (index == -1) {
-            Log.d(TAG, "task is new");
             switch (task.getState()) {
                 case CREATED:
                 case UPDATED:
@@ -47,9 +56,9 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
                     notifyItemInserted(mTasks.indexOf(task));
                     break;
                 default:
+                    throw new IllegalStateException("Can't define state for task: " + task.toString());
             }
         } else {
-            Log.d(TAG, "task exists");
             switch (task.getState()) {
                 case CREATED:
                 case UPDATED:
@@ -57,10 +66,21 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
                     notifyItemChanged(index);
                     break;
                 case DELETED:
-                    mTasks.remove(task);
+                    mTasks.remove(index);
                     notifyItemRemoved(index);
+                    break;
+                default:
+                    throw new IllegalStateException("Can't define state for task: " + task.toString());
             }
         }
+    }
+
+    /**
+     * Checks if task is eligible for adding to this adapter.
+     * @param task
+     */
+    public boolean canAddItem(@NotNull TaskModel task) {
+        return !(getItemCount() > 0 && task.getParentTaskId() != mTasks.get(0).getParentTaskId());
     }
 
     private int findTaskIndexById(TaskModel task) {
