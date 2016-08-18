@@ -36,6 +36,5 @@ dependencies {
     compile 'com.yahoo.squidb:squidb-android:3.0.0'
     apt 'com.yahoo.squidb:squidb-processor:3.0.0'
     compile 'com.yahoo.squidb:squidb-reactive:3.0.0'
-    compile 'net.orfjackal.retrolambda:retrolambda:2.3.0'
     testCompile 'junit:junit:4.12'
 }
