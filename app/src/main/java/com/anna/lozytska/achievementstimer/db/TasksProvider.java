@@ -7,10 +7,14 @@ package com.anna.lozytska.achievementstimer.db;
 import android.util.Log;
 
 import com.anna.lozytska.achievementstimer.AppConfig;
+import com.anna.lozytska.achievementstimer.db.modelspec.TaskRow;
 import com.anna.lozytska.achievementstimer.model.TaskModel;
 import com.anna.lozytska.achievementstimer.model.TaskState;
+import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.sql.Query;
 
 import rx.Observable;
+import rx.Subscriber;
 import rx.subjects.PublishSubject;
 
 /**
@@ -49,14 +53,25 @@ public class TasksProvider {
         return null;
     }
 
-    public Observable<TaskModel> getAchievementsStream() {
-        return getSubTasksStream(0L);
-    }
-
-    public Observable<TaskModel> getSubTasksStream(long parentTaskId) {
-        //TODO: TBD
-        return null;
-
+    public Observable<TaskModel> getSubTasksStream(final long parentTaskId) {
+        return Observable.create(new Observable.OnSubscribe<TaskModel>() {
+            @Override
+            public void call(Subscriber<? super TaskModel> subscriber) {
+                Query tasksQuery = Query.select(TaskRow.PROPERTIES)
+                        .where(TaskRow.PARENT_TASK_ID.eq(parentTaskId));
+                SquidCursor<TaskRow> tasks = mDatabase.query(TaskRow.class, tasksQuery);
+                try {
+                    TaskRow taskRow = new TaskRow();
+                    for (tasks.moveToFirst(); !tasks.isAfterLast(); tasks.moveToNext()) {
+                        taskRow.readPropertiesFromCursor(tasks);
+                        subscriber.onNext(TaskModel.fromTaskRow(taskRow));
+                    }
+                } finally {
+                    tasks.close();
+                    subscriber.onCompleted();
+                }
+            }
+        });
     }
 
     public Observable<TaskModel> getTask(long id) {
@@ -67,10 +82,10 @@ public class TasksProvider {
 
     public void addTask(TaskModel task) {
         mDatabase.beginTransaction();
+        task.setState(TaskState.CREATED);
         boolean isSuccess = mDatabase.persist(task.toTaskRow());
         if (isSuccess) {
             mDatabase.setTransactionSuccessful();
-            task.setState(TaskState.CREATED);
             mTasksUpdates.onNext(task);
         } else {
             mTasksUpdates.onError(new Throwable("Failed to add: " + task.toString()));

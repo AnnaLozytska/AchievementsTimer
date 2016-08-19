@@ -20,7 +20,9 @@ import com.anna.lozytska.achievementstimer.ui.adapter.TasksAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -37,7 +39,6 @@ public class TaskListFragment extends Fragment {
 
     private TasksAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
-    private Subscriber<TaskModel> mTasksStreamSubscriber;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Nullable
@@ -52,7 +53,35 @@ public class TaskListFragment extends Fragment {
         mTasksView.setAdapter(mAdapter);
         mTasksView.addItemDecoration(new TaskDecoration());
 
-        mTasksStreamSubscriber = new Subscriber<TaskModel>() {
+        return root;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        TasksProvider tasksProvider = TasksProvider.getInstance();
+        mSubscriptions.add(
+                tasksProvider.getSubTasksStream(0L)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(getTasksStreamSubscriber())
+        );
+        mSubscriptions.add(
+                tasksProvider.getTasksUpdates()
+                        .filter(byParentTask(0L))
+                        .subscribe(getTasksStreamSubscriber())
+        );
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mSubscriptions.clear();
+    }
+
+    @NonNull
+    private Subscriber<TaskModel> getTasksStreamSubscriber() {
+        return new Subscriber<TaskModel>() {
             @Override
             public void onCompleted() {
             }
@@ -68,25 +97,6 @@ public class TaskListFragment extends Fragment {
                 }
             }
         };
-
-        return root;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mSubscriptions.add(
-                TasksProvider.getInstance()
-                        .getTasksUpdates()
-                        .filter(byParentTask(0L))
-                        .subscribe(mTasksStreamSubscriber)
-        );
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mSubscriptions.clear();
     }
 
     @NonNull
@@ -97,9 +107,6 @@ public class TaskListFragment extends Fragment {
                 return taskModel.getParentTaskId() == parentTaskId;
             }
         };
-    }
-
-    private void updateItems(TaskModel task) {
     }
 
     private class TaskDecoration extends RecyclerView.ItemDecoration {
