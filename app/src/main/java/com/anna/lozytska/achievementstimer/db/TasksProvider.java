@@ -14,6 +14,8 @@ import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Query;
 
 import rx.Observable;
+import rx.Single;
+import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.subjects.PublishSubject;
 
@@ -48,9 +50,20 @@ public class TasksProvider {
         return mTasksUpdates;
     }
 
-    public Observable<TaskModel> getCurrentTask() {
-        //TODO: TBD
-        return null;
+    public Single<TaskModel> getCurrentTask() {
+        return Single.create(new Single.OnSubscribe<TaskModel>() {
+            @Override
+            public void call(SingleSubscriber<? super TaskModel> singleSubscriber) {
+                Query currentTaskQuery = Query.select(TaskRow.PROPERTIES)
+                        .where(TaskRow.IS_CURRENT.eq(true));
+                TaskRow currentTaskRow = mDatabase.fetchByQuery(TaskRow.class, currentTaskQuery);
+                if (currentTaskRow != null) {
+                    singleSubscriber.onSuccess(TaskModel.fromTaskRow(currentTaskRow));
+                } else {
+                    singleSubscriber.onSuccess(null);
+                }
+            }
+        });
     }
 
     public Observable<TaskModel> getSubTasksStream(final long parentTaskId) {

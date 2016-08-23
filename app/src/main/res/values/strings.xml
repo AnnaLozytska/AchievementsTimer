@@ -5,5 +5,5 @@
     <string name="timer_minutes">%02d min\u00A0</string>
     <string name="timer_seconds">%02d sec</string>
 
-    <string name="no_current_task">...</string>
+    <string name="no_current_task">No current task</string>
 </resources>
