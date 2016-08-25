@@ -5,6 +5,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -101,7 +102,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     }
 
     @Override
-    public void onBindViewHolder(TaskViewHolder holder, int position) {
+    public void onBindViewHolder(final TaskViewHolder holder, int position) {
         final TaskModel task = mTasks.get(position);
 
         //TODO: load image
@@ -109,6 +110,12 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         holder.title.setText(task.getTitle());
         holder.timer.setText(task.getEstimatedTime() - task.getSpentTime());
         holder.isAchieved.setChecked(task.isAchieved());
+        holder.isAchieved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                task.setIsAchieved(holder.isAchieved.isChecked());
+            }
+        });
     }
 
     @Override

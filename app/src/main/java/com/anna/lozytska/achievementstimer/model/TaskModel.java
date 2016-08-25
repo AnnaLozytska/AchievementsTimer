@@ -2,16 +2,19 @@ package com.anna.lozytska.achievementstimer.model;
 
 import com.anna.lozytska.achievementstimer.db.modelspec.TaskRow;
 
+import rx.Observer;
+
 /**
  * Created by Anna Lozytska on 17.08.2016.
  */
 
 /**
  * Wrapper around Database row model that hides details of its implementation
- * and provides independent and more convenient API
+ * and provides independent and more convenient API for tasks using and updating
  */
-public class TaskModel {
+public class TaskModel{
     private TaskRow taskRow;
+    private Observer<TaskModel> mUpdatesObserver;
 
     public static TaskModel fromTaskRow(TaskRow taskRow) {
         return new TaskModel(taskRow);
@@ -22,12 +25,17 @@ public class TaskModel {
     }
 
     public TaskModel(String title) {
-        taskRow = new TaskRow();
+        this(new TaskRow());
         taskRow.setTitle(title);
+        setState(TaskState.CREATED);
     }
 
     public TaskRow toTaskRow() {
         return taskRow;
+    }
+
+    public void setUpdatesObserver(Observer<TaskModel> updatesObserver) {
+        mUpdatesObserver = updatesObserver;
     }
 
     public long getId() {
@@ -40,6 +48,7 @@ public class TaskModel {
 
     public void setTitle(String title) {
         taskRow.setTitle(title);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public String getDescription() {
@@ -48,6 +57,7 @@ public class TaskModel {
 
     public void setDescription(String description) {
         taskRow.setDescription(description);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public String getImageUrl() {
@@ -56,6 +66,7 @@ public class TaskModel {
 
     public void setImageUrl(String imageUrl) {
         taskRow.setImageUrl(imageUrl);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public long getParentTaskId() {
@@ -64,6 +75,7 @@ public class TaskModel {
 
     public void setParentTaskId(long parentTaskId) {
         taskRow.setParentTaskId(parentTaskId);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public boolean isCurrent() {
@@ -72,6 +84,7 @@ public class TaskModel {
 
     public void setCurrent(boolean isCurrent) {
         taskRow.setIsCurrent(isCurrent);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public long getEstimatedTime() {
@@ -80,6 +93,7 @@ public class TaskModel {
 
     public void setEstimatedTime(long estimatedTime) {
         taskRow.setEstimatedTime(estimatedTime);
+        notifyTaskChanged(TaskState.UPDATED);
     }
     
     /**
@@ -97,6 +111,7 @@ public class TaskModel {
             currentInterval = System.currentTimeMillis() - taskRow.getLastStartTimestamp();
         }
         taskRow.setSpentBeforeLastStart(spentTime - currentInterval);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public boolean isRunning() {
@@ -108,6 +123,7 @@ public class TaskModel {
             throw new IllegalStateException("Task is already running");
         }
         taskRow.setLastStartTimestamp(System.currentTimeMillis());
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public void stopRun() {
@@ -117,6 +133,7 @@ public class TaskModel {
         long lastInterval = System.currentTimeMillis() - taskRow.getLastStartTimestamp();
         taskRow.setSpentBeforeLastStart(taskRow.getSpentBeforeLastStart() + lastInterval);
         taskRow.setLastStartTimestamp(-1L);
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     public boolean isAchieved() {
@@ -129,6 +146,7 @@ public class TaskModel {
         } else {
             taskRow.setAchievedTimestamp(-1L);
         }
+        notifyTaskChanged(TaskState.UPDATED);
     }
 
     /**
@@ -148,6 +166,11 @@ public class TaskModel {
             return TaskState.CREATED;
         }
         return TaskState.UNKNOWN;
+    }
+
+    private void notifyTaskChanged(TaskState taskState) {
+        setState(taskState);
+        mUpdatesObserver.onNext(this);
     }
 
     public void setState(TaskState taskState) {

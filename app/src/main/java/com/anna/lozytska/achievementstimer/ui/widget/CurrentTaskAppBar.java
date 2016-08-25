@@ -18,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -56,7 +57,8 @@ public class CurrentTaskAppBar extends AppBarLayout {
         );
         mSubscriptions.add(
                 mTasksProvider.getTasksUpdates()
-                .subscribe(getOnNewCurrentTaskAction())
+                        .filter(isCurrent())
+                        .subscribe(getOnNewCurrentTaskAction())
         );
     }
 
@@ -78,6 +80,16 @@ public class CurrentTaskAppBar extends AppBarLayout {
                     mTimerView.setVisibility(GONE);
                     stopTimerUpdate();
                 }
+            }
+        };
+    }
+
+    @NonNull
+    private Func1<TaskModel, Boolean> isCurrent() {
+        return new Func1<TaskModel, Boolean>() {
+            @Override
+            public Boolean call(TaskModel taskModel) {
+                return taskModel.isCurrent();
             }
         };
     }

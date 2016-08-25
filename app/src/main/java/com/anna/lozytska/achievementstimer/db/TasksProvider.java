@@ -9,7 +9,6 @@ import android.util.Log;
 import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.db.modelspec.TaskRow;
 import com.anna.lozytska.achievementstimer.model.TaskModel;
-import com.anna.lozytska.achievementstimer.model.TaskState;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Query;
 
@@ -18,6 +17,7 @@ import rx.Single;
 import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.subjects.PublishSubject;
+import rx.subjects.SerializedSubject;
 
 /**
  * Layer class between tasks presenters and persistent storage. Provides convenient API for
@@ -30,7 +30,7 @@ public class TasksProvider {
     private static volatile TasksProvider sInstance;
 
     private final AppReactiveSquidDatabase mDatabase;
-    private final PublishSubject<TaskModel> mTasksUpdates;
+    private final SerializedSubject<TaskModel, TaskModel> mTasksUpdates;
 
     public static TasksProvider getInstance() {
         synchronized (TasksProvider.class) {
@@ -43,7 +43,19 @@ public class TasksProvider {
 
     private TasksProvider() {
         mDatabase = AppReactiveSquidDatabase.getInstance();
-        mTasksUpdates = PublishSubject.create();
+        mTasksUpdates = new SerializedSubject<TaskModel, TaskModel>(PublishSubject.<TaskModel>create()) {
+            @Override
+            public void onNext(TaskModel taskModel) {
+                Log.d(TAG, "Called doOnNext()");
+                boolean isUpdated = updateTask(taskModel);
+                if (isUpdated) {
+                    super.onNext(taskModel);
+                } else {
+                    Log.d(TAG, "Failed to update");
+                    super.onError(new Throwable("Failed to update: " + taskModel.toString()));
+                }
+            }
+        };
     }
 
     public Observable<TaskModel> getTasksUpdates() {
@@ -58,7 +70,9 @@ public class TasksProvider {
                         .where(TaskRow.IS_CURRENT.eq(true));
                 TaskRow currentTaskRow = mDatabase.fetchByQuery(TaskRow.class, currentTaskQuery);
                 if (currentTaskRow != null) {
-                    singleSubscriber.onSuccess(TaskModel.fromTaskRow(currentTaskRow));
+                    TaskModel currentTaskModel = TaskModel.fromTaskRow(currentTaskRow);
+                    currentTaskModel.setUpdatesObserver(mTasksUpdates);
+                    singleSubscriber.onSuccess(currentTaskModel);
                 } else {
                     singleSubscriber.onSuccess(null);
                 }
@@ -97,27 +111,11 @@ public class TasksProvider {
     }
 
     public void addTask(TaskModel task) {
-        mDatabase.beginTransaction();
-        task.setState(TaskState.CREATED);
-        boolean isSuccess = mDatabase.persist(task.toTaskRow());
-        if (isSuccess) {
-            mDatabase.setTransactionSuccessful();
-            mTasksUpdates.onNext(task);
-        } else {
-            mTasksUpdates.onError(new Throwable("Failed to add: " + task.toString()));
-        }
-        mDatabase.endTransaction();
+        task.setUpdatesObserver(mTasksUpdates);
+        mTasksUpdates.onNext(task);
     }
 
-    public void updateTask(TaskModel task) {
-        //TODO: TBD
-        Log.d(TAG, "TBD: task updated");
-
-    }
-
-    public void deleteTask(TaskModel task) {
-        //TODO: TBD
-        Log.d(TAG, "TBD: task deleted");
-
+    private boolean updateTask(TaskModel task) {
+        return mDatabase.persist(task.toTaskRow());
     }
 }

@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,10 +89,14 @@ public class TaskListFragment extends Fragment {
 
             @Override
             public void onError(Throwable e) {
+                //TODO: DELETE AFTER TESTING:
+                Log.d(TAG, "onError", e);
             }
 
             @Override
             public void onNext(TaskModel task) {
+                Log.d(TAG, "New task updated: " + task.toString());
+
                 if (task != null && mAdapter.canAddItem(task)) {
                     mAdapter.addOrUpdateItem(task);
                 }
