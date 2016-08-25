@@ -1,7 +1,7 @@
 package com.anna.lozytska.achievementstimer.db;
 
 /**
- * Created by alozytska on 09.08.16.
+ * Created by Anna Lozytska on 09.08.16.
  */
 
 import android.util.Log;
@@ -68,23 +68,26 @@ public class TasksProvider {
 
     public Observable<TaskModel> getSubTasksStream(final long parentTaskId) {
         return Observable.create(new Observable.OnSubscribe<TaskModel>() {
-            @Override
-            public void call(Subscriber<? super TaskModel> subscriber) {
-                Query tasksQuery = Query.select(TaskRow.PROPERTIES)
-                        .where(TaskRow.PARENT_TASK_ID.eq(parentTaskId));
-                SquidCursor<TaskRow> tasks = mDatabase.query(TaskRow.class, tasksQuery);
-                try {
-                    TaskRow taskRow = new TaskRow();
-                    for (tasks.moveToFirst(); !tasks.isAfterLast(); tasks.moveToNext()) {
-                        taskRow.readPropertiesFromCursor(tasks);
-                        subscriber.onNext(TaskModel.fromTaskRow(taskRow));
+                    @Override
+                    public void call(Subscriber<? super TaskModel> subscriber) {
+                        Query tasksQuery = Query.select(TaskRow.PROPERTIES)
+                                .where(TaskRow.PARENT_TASK_ID.eq(parentTaskId));
+                        SquidCursor<TaskRow> tasks = mDatabase.query(TaskRow.class, tasksQuery);
+                        try {
+                            for (tasks.moveToFirst(); !tasks.isAfterLast(); tasks.moveToNext()) {
+                                TaskRow taskRow = new TaskRow();
+                                taskRow.readPropertiesFromCursor(tasks);
+                                TaskModel taskModel = TaskModel.fromTaskRow(taskRow);
+                                taskModel.setUpdatesObserver(mTasksUpdates);
+                                subscriber.onNext(taskModel);
+                            }
+                        } finally {
+                            tasks.close();
+                            subscriber.onCompleted();
+                        }
                     }
-                } finally {
-                    tasks.close();
-                    subscriber.onCompleted();
-                }
-            }
-        });
+                })
+                .onBackpressureBuffer();
     }
 
     public Observable<TaskModel> getTask(long id) {
