@@ -109,11 +109,13 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
 
         holder.title.setText(task.getTitle());
         holder.timer.setText(task.getEstimatedTime() - task.getSpentTime());
+        // recycle previous listener to avoid changing previously bound task
+        holder.isAchieved.setOnCheckedChangeListener(null);
         holder.isAchieved.setChecked(task.isAchieved());
         holder.isAchieved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                task.setIsAchieved(holder.isAchieved.isChecked());
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                task.setIsAchieved(isChecked);
             }
         });
     }

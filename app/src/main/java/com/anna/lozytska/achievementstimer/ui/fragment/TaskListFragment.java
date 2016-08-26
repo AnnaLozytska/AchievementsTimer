@@ -70,6 +70,8 @@ public class TaskListFragment extends Fragment {
         mSubscriptions.add(
                 tasksProvider.getTasksUpdates()
                         .filter(byParentTask(0L))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(getTasksStreamSubscriber())
         );
     }
