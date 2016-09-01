@@ -1,11 +1,11 @@
 package com.anna.lozytska.achievementstimer.ui.adapter;
 
+import android.content.res.Resources;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -104,18 +104,26 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     @Override
     public void onBindViewHolder(final TaskViewHolder holder, int position) {
         final TaskModel task = mTasks.get(position);
+        Resources resources = holder.itemView.getContext().getResources();
 
+        if (task.isRunning()) {
+            holder.itemView.setBackgroundColor(resources.getColor(R.color.colorRunningTaskBackground));
+        } else {
+            holder.itemView.setBackgroundColor(resources.getColor(android.R.color.white));
+        }
         //TODO: load image
 
         holder.title.setText(task.getTitle());
         holder.timer.setText(task.getEstimatedTime() - task.getSpentTime());
         // recycle previous listener to avoid changing previously bound task
-        holder.isAchieved.setOnCheckedChangeListener(null);
-        holder.isAchieved.setChecked(task.isAchieved());
-        holder.isAchieved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.run.setOnClickListener(null);
+        holder.run.setImageDrawable(task.isRunning() ?
+                resources.getDrawable(R.drawable.ic_pause_white_24dp)
+                : resources.getDrawable(R.drawable.ic_play_white_24dp));
+        holder.run.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                task.setIsAchieved(isChecked);
+            public void onClick(View view) {
+                task.startRun(!task.isRunning());
             }
         });
     }
@@ -132,8 +140,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         ImageView image;
         @BindView(R.id.timer)
         TimerView timer;
-        @BindView(R.id.is_achieved)
-        SwitchCompat isAchieved;
+        @BindView(R.id.start_pause)
+        AppCompatImageButton run;
 
         public TaskViewHolder(View view) {
             super(view);

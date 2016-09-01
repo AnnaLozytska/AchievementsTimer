@@ -118,21 +118,22 @@ public class TaskModel{
         return taskRow.getLastStartTimestamp() != -1;
     }
 
-    public void startRun() {
-        if (taskRow.getLastStartTimestamp() != -1) {
-            throw new IllegalStateException("Task is already running");
+    public void startRun(boolean startRun) {
+        if (startRun) {
+            if (taskRow.getLastStartTimestamp() != -1) {
+                throw new IllegalStateException("Task is already running");
+            }
+            taskRow.setLastStartTimestamp(System.currentTimeMillis());
+            setCurrent(true);
+        } else {
+            if (taskRow.getLastStartTimestamp() == -1) {
+                throw new IllegalStateException("Task is already stopped");
+            }
+            long lastInterval = System.currentTimeMillis() - taskRow.getLastStartTimestamp();
+            taskRow.setSpentBeforeLastStart(taskRow.getSpentBeforeLastStart() + lastInterval);
+            taskRow.setLastStartTimestamp(-1L);
+            setCurrent(false);
         }
-        taskRow.setLastStartTimestamp(System.currentTimeMillis());
-        notifyTaskChanged(TaskState.UPDATED);
-    }
-
-    public void stopRun() {
-        if (taskRow.getLastStartTimestamp() == -1) {
-            throw new IllegalStateException("Task is already stopped");
-        }
-        long lastInterval = System.currentTimeMillis() - taskRow.getLastStartTimestamp();
-        taskRow.setSpentBeforeLastStart(taskRow.getSpentBeforeLastStart() + lastInterval);
-        taskRow.setLastStartTimestamp(-1L);
         notifyTaskChanged(TaskState.UPDATED);
     }
 

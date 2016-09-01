@@ -27,10 +27,11 @@ public class CurrentTaskAppBar extends AppBarLayout {
     private static final long TIMER_UPDATE_INTERVAL_MS = DateUtils.SECOND_IN_MILLIS;
 
     @BindView(R.id.current_task)
-    TextView mCurrentTask;
+    TextView mTitle;
     @BindView(R.id.timer)
     TimerView mTimerView;
 
+    private TaskModel mCurrentTask;
     private TasksProvider mTasksProvider;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
@@ -67,21 +68,31 @@ public class CurrentTaskAppBar extends AppBarLayout {
         return new Action1<TaskModel>() {
             @Override
             public void call(TaskModel taskModel) {
-                if (taskModel != null) {
-                    mCurrentTask.setText(taskModel.getTitle());
-                    mTimerView.setVisibility(VISIBLE);
-                    mTimerView.setText(taskModel.getEstimatedTime() - System.currentTimeMillis());
-                    if (mTimerUpdateHandler == null) {
-                        setupTimerHandler();
-                    }
-                    sendDelayedTimerUpdate();
+                if (taskModel != null && taskModel.isCurrent()) {
+                    setNewCurrentTask(taskModel);
                 } else {
-                    mCurrentTask.setText(getContext().getString(R.string.no_current_task));
-                    mTimerView.setVisibility(GONE);
-                    stopTimerUpdate();
+                    clear();
                 }
             }
         };
+    }
+
+    private void setNewCurrentTask(TaskModel taskModel) {
+        mCurrentTask = taskModel;
+        mTitle.setText(taskModel.getTitle());
+        mTimerView.setVisibility(VISIBLE);
+        mTimerView.setText(taskModel.getEstimatedTime() - taskModel.getSpentTime());
+        if (mTimerUpdateHandler == null) {
+            setupTimerHandler();
+        }
+        sendDelayedTimerUpdate();
+    }
+
+    private void clear() {
+        mCurrentTask = null;
+        mTitle.setText(getContext().getString(R.string.no_current_task));
+        mTimerView.setVisibility(GONE);
+        stopTimerUpdate();
     }
 
     @NonNull
@@ -89,7 +100,11 @@ public class CurrentTaskAppBar extends AppBarLayout {
         return new Func1<TaskModel, Boolean>() {
             @Override
             public Boolean call(TaskModel taskModel) {
-                return taskModel.isCurrent();
+                if (mCurrentTask != null && taskModel.getId() == mCurrentTask.getId()) {
+                    return true;
+                } else {
+                    return taskModel.isCurrent();
+                }
             }
         };
     }
@@ -108,7 +123,7 @@ public class CurrentTaskAppBar extends AppBarLayout {
             @Override
             public boolean handleMessage(Message message) {
                 if (message.what == TIMER_UPDATE_MESSAGE) {
-                    //displayRemainingTime();
+                    mTimerView.setText(mCurrentTask.getEstimatedTime() - mCurrentTask.getSpentTime());
                     sendDelayedTimerUpdate();
                 }
                 return false;

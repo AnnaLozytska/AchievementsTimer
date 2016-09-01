@@ -8,6 +8,8 @@
     <color name="textSecondary">#727272</color>
     <color name="titleIcons">#FFFFFF</color>
 
+    <color name="colorRunningTaskBackground">@color/primaryLight</color>
+
     <color name="colorTimerNormal">@android:color/secondary_text_light</color>
     <color name="colorTimerSoon">#219516</color>
     <color name="colorTimerWarning">#FF5F09</color>

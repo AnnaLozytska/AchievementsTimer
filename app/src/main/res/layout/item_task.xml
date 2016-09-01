@@ -30,12 +30,6 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/is_achieved"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/task_item_horizontal_margin" />
-
         <com.anna.lozytska.achievementstimer.ui.widget.TimerView
             android:id="@+id/timer"
             android:layout_width="0dp"
@@ -44,6 +38,12 @@
             android:padding="@dimen/task_item_vertical_margin"
             android:textAlignment="viewEnd"
             android:textSize="10sp" />
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/start_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_play_white_24dp"/>
 
     </LinearLayout>
 

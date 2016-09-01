@@ -10,6 +10,7 @@ import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.db.modelspec.TaskRow;
 import com.anna.lozytska.achievementstimer.model.TaskModel;
 import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Query;
 
 import rx.Observable;
@@ -47,8 +48,12 @@ public class TasksProvider {
             @Override
             public void onNext(TaskModel taskModel) {
                 Log.d(TAG, "Called doOnNext()");
+
                 boolean isUpdated = updateTask(taskModel);
                 if (isUpdated) {
+                    if (taskModel.isCurrent()) {
+                        updateCurrentTasks(taskModel);
+                    }
                     super.onNext(taskModel);
                 } else {
                     Log.d(TAG, "Failed to update");
@@ -56,6 +61,18 @@ public class TasksProvider {
                 }
             }
         };
+    }
+
+    private boolean updateTask(TaskModel task) {
+        return mDatabase.persist(task.toTaskRow());
+    }
+
+    private void updateCurrentTasks(TaskModel newCurrentTask) {
+        Criterion previousCurrentTasks = TaskRow.IS_CURRENT.eq(true).and(TaskRow.ID.neq(newCurrentTask.getId()));
+        TaskRow removeCurrent = new TaskRow();
+        removeCurrent.setIsCurrent(false);
+        int count = mDatabase.update(previousCurrentTasks, removeCurrent);
+        Log.d(TAG, "Removed isCurrent in " + count + " rows");
     }
 
     public Observable<TaskModel> getTasksUpdates() {
@@ -113,9 +130,5 @@ public class TasksProvider {
     public void addTask(TaskModel task) {
         task.setUpdatesObserver(mTasksUpdates);
         mTasksUpdates.onNext(task);
-    }
-
-    private boolean updateTask(TaskModel task) {
-        return mDatabase.persist(task.toTaskRow());
     }
 }
