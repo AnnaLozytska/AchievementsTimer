@@ -18,6 +18,8 @@ import com.anna.lozytska.achievementstimer.db.TasksProvider;
 import com.anna.lozytska.achievementstimer.model.TaskModel;
 import com.anna.lozytska.achievementstimer.ui.adapter.TasksAdapter;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscriber;
@@ -76,16 +78,48 @@ public class TaskListFragment extends Fragment {
         TasksProvider tasksProvider = TasksProvider.getInstance();
         mSubscriptions.add(
                 tasksProvider.getSubTasksStream(parentTaskId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getTasksStreamSubscriber())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<List<TaskModel>>() {
+                            @Override
+                            public void onCompleted() {
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                            }
+
+                            @Override
+                            public void onNext(List<TaskModel> tasks) {
+                                mAdapter.setItems(tasks);
+                            }
+                        })
         );
         mSubscriptions.add(
                 tasksProvider.getTasksUpdates()
                         .filter(byParentTask(parentTaskId))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(getTasksStreamSubscriber())
+                        .subscribe(new Subscriber<TaskModel>() {
+                            @Override
+                            public void onCompleted() {
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                //TODO: DELETE AFTER TESTING:
+                                Log.d(TAG, "onError", e);
+                            }
+
+                            @Override
+                            public void onNext(TaskModel task) {
+                                Log.d(TAG, "New task updated: " + task.toString());
+
+                                if (task != null && mAdapter.canAddItem(task)) {
+                                    mAdapter.addOrUpdateItem(task);
+                                }
+                            }
+                        })
         );
     }
 
@@ -93,30 +127,6 @@ public class TaskListFragment extends Fragment {
     public void onStop() {
         super.onStop();
         mSubscriptions.clear();
-    }
-
-    @NonNull
-    private Subscriber<TaskModel> getTasksStreamSubscriber() {
-        return new Subscriber<TaskModel>() {
-            @Override
-            public void onCompleted() {
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                //TODO: DELETE AFTER TESTING:
-                Log.d(TAG, "onError", e);
-            }
-
-            @Override
-            public void onNext(TaskModel task) {
-                Log.d(TAG, "New task updated: " + task.toString());
-
-                if (task != null && mAdapter.canAddItem(task)) {
-                    mAdapter.addOrUpdateItem(task);
-                }
-            }
-        };
     }
 
     @NonNull

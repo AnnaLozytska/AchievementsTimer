@@ -41,11 +41,22 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     }
 
     /**
+     * Sets new list of items instead of previous one. Use {@link #addOrUpdateItem(TaskModel)} if you need to
+     * add items to existing list.
+     * @param tasks
+     */
+    public void setItems(List<TaskModel> tasks) {
+        mTasks = tasks;
+        notifyDataSetChanged();
+    }
+
+    /**
      * Adds new item to {@link TasksAdapter} if there is no {@link TaskModel} with same id among existing items
      * and it has the same parent task as items in this adapter.
      * If item with same id is already added to this adapter, new item will replace it.
      * @param task to be added or updated in this adapter
      * @throws IllegalStateException if task has different parent task than items in this adapter.
+     * @see #setItems(List)
      */
     public void addOrUpdateItem(@NotNull TaskModel task) throws IllegalStateException {
         if (!canAddItem(task)) {

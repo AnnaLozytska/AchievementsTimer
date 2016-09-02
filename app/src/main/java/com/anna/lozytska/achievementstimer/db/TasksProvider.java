@@ -13,6 +13,10 @@ import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Query;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
@@ -97,28 +101,34 @@ public class TasksProvider {
         });
     }
 
-    public Observable<TaskModel> getSubTasksStream(final long parentTaskId) {
-        return Observable.create(new Observable.OnSubscribe<TaskModel>() {
+    public Observable<List<TaskModel>> getSubTasksStream(final long parentTaskId) {
+        return Observable.create(new Observable.OnSubscribe<List<TaskModel>>() {
                     @Override
-                    public void call(Subscriber<? super TaskModel> subscriber) {
+                    public void call(Subscriber<? super List<TaskModel>> subscriber) {
                         Query tasksQuery = Query.select(TaskRow.PROPERTIES)
                                 .where(TaskRow.PARENT_TASK_ID.eq(parentTaskId));
                         SquidCursor<TaskRow> tasks = mDatabase.query(TaskRow.class, tasksQuery);
+                        List<TaskModel> taskModels;
                         try {
-                            for (tasks.moveToFirst(); !tasks.isAfterLast(); tasks.moveToNext()) {
-                                TaskRow taskRow = new TaskRow();
-                                taskRow.readPropertiesFromCursor(tasks);
-                                TaskModel taskModel = TaskModel.fromTaskRow(taskRow);
-                                taskModel.setUpdatesObserver(mTasksUpdates);
-                                subscriber.onNext(taskModel);
+                            if (tasks.moveToFirst()) {
+                                taskModels = new ArrayList<>();
+                                for (tasks.moveToFirst(); !tasks.isAfterLast(); tasks.moveToNext()) {
+                                    TaskRow taskRow = new TaskRow();
+                                    taskRow.readPropertiesFromCursor(tasks);
+                                    TaskModel taskModel = TaskModel.fromTaskRow(taskRow);
+                                    taskModel.setUpdatesObserver(mTasksUpdates);
+                                    taskModels.add(taskModel);
+                                }
+                            } else {
+                                taskModels = Collections.emptyList();
                             }
+                            subscriber.onNext(taskModels);
                         } finally {
                             tasks.close();
                             subscriber.onCompleted();
                         }
                     }
-                })
-                .onBackpressureBuffer();
+                });
     }
 
     public Observable<TaskModel> getTask(long id) {
