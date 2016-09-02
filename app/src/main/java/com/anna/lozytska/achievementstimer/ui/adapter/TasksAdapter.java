@@ -1,5 +1,6 @@
 package com.anna.lozytska.achievementstimer.ui.adapter;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.anna.lozytska.achievementstimer.AppConfig;
 import com.anna.lozytska.achievementstimer.R;
 import com.anna.lozytska.achievementstimer.model.TaskModel;
+import com.anna.lozytska.achievementstimer.ui.activity.TaskDetailsActivity;
 import com.anna.lozytska.achievementstimer.ui.widget.TimerView;
 import com.anna.lozytska.achievementstimer.util.Utils;
 
@@ -31,9 +33,11 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     private static final String TAG = AppConfig.TEST_LOG_TAG;
 
     private List<TaskModel> mTasks;
+    private Context mContext;
 
-    public TasksAdapter() {
+    public TasksAdapter(Context context) {
         mTasks = new ArrayList<>();
+        mContext = context;
     }
 
     /**
@@ -105,18 +109,29 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     public void onBindViewHolder(final TaskViewHolder holder, int position) {
         final TaskModel task = mTasks.get(position);
         Resources resources = holder.itemView.getContext().getResources();
+        View.OnClickListener showDetailsOnClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TaskDetailsActivity.startActivity(mContext, task.getId());
+            }
+        };
+
+        // recycle previous listener to avoid changing previously bound task
+        holder.clearOnClickListeners();
 
         if (task.isRunning()) {
             holder.itemView.setBackgroundColor(resources.getColor(R.color.colorRunningTaskBackground));
         } else {
             holder.itemView.setBackgroundColor(resources.getColor(android.R.color.white));
         }
+        holder.itemView.setOnClickListener(showDetailsOnClick);
+        holder.image.setOnClickListener(showDetailsOnClick);
         //TODO: load image
 
         holder.title.setText(task.getTitle());
+        holder.title.setOnClickListener(showDetailsOnClick);
         holder.timer.setText(task.getEstimatedTime() - task.getSpentTime());
-        // recycle previous listener to avoid changing previously bound task
-        holder.run.setOnClickListener(null);
+        holder.timer.setOnClickListener(showDetailsOnClick);
         holder.run.setImageDrawable(task.isRunning() ?
                 resources.getDrawable(R.drawable.ic_pause_white_24dp)
                 : resources.getDrawable(R.drawable.ic_play_white_24dp));
@@ -146,6 +161,13 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
         public TaskViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+        }
+
+        public void clearOnClickListeners() {
+            title.setOnClickListener(null);
+            image.setOnClickListener(null);
+            timer.setOnClickListener(null);
+            run.setOnClickListener(null);
         }
     }
 }

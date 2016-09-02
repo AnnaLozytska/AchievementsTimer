@@ -16,6 +16,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.anna.lozytska.achievementstimer.ui.activity.TaskDetailsActivity"
+            android:parentActivityName=".ui.activity.MainActivity">
+        </activity>
+
     </application>
 
 </manifest>

@@ -6,4 +6,6 @@
     <string name="timer_seconds">%02d sec</string>
 
     <string name="no_current_task">No current task</string>
+
+    <string name="enter_new_comment">Enter new comment…</string>
 </resources>

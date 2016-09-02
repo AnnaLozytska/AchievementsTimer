@@ -33,6 +33,7 @@ public class TaskListFragment extends Fragment {
     //    private static final String TAG = TaskListFragment.class.getSimpleName();
     private static final String TAG = AppConfig.TEST_LOG_TAG;
 
+    private static final String PARENT_TASK_ID = "parent_task_id";
     private static final int TASKS_PER_ROW = 2;
 
     @BindView(R.id.task_list)
@@ -42,6 +43,14 @@ public class TaskListFragment extends Fragment {
     private GridLayoutManager mLayoutManager;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
+    public static TaskListFragment newInstance(long parentTaskId) {
+        Bundle args = new Bundle();
+        args.putLong(PARENT_TASK_ID, parentTaskId);
+        TaskListFragment fragment = new TaskListFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,7 +59,7 @@ public class TaskListFragment extends Fragment {
 
         mLayoutManager = new GridLayoutManager(getContext(), TASKS_PER_ROW);
         mTasksView.setLayoutManager(mLayoutManager);
-        mAdapter = new TasksAdapter();
+        mAdapter = new TasksAdapter(getContext());
         mTasksView.setAdapter(mAdapter);
         mTasksView.addItemDecoration(new TaskDecoration());
 
@@ -60,16 +69,20 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        long parentTaskId = 0L;
+        if (getArguments() != null) {
+            parentTaskId = getArguments().getLong(PARENT_TASK_ID);
+        }
         TasksProvider tasksProvider = TasksProvider.getInstance();
         mSubscriptions.add(
-                tasksProvider.getSubTasksStream(0L)
+                tasksProvider.getSubTasksStream(parentTaskId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(getTasksStreamSubscriber())
         );
         mSubscriptions.add(
                 tasksProvider.getTasksUpdates()
-                        .filter(byParentTask(0L))
+                        .filter(byParentTask(parentTaskId))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(getTasksStreamSubscriber())
